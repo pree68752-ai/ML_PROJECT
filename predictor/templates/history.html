@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}History{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <h2>Your Prediction History</h2>
+
+    <table style="width:100%; border-collapse: collapse;">
+        <tr style="background:#2e7d32; color:white;">
+            <th style="padding:10px;">Image</th>
+            <th>Prediction</th>
+            <th>Confidence</th>
+            <th>Date</th>
+        </tr>
+
+        {% for p in predictions %}
+        <tr>
+            <td style="padding:10px;">{{ p.image_name }}</td>
+            <td>{{ p.prediction }}</td>
+            <td>{{ p.confidence|floatformat:2 }}</td>
+            <td>{{ p.created_at }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" style="text-align:center;">No predictions yet.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

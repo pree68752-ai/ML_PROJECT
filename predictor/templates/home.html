@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<style>
+    .navbar {
+        text-align: right;
+        margin-bottom: 20px;
+    }
+
+    .navbar a {
+        margin-left: 15px;
+        text-decoration: none;
+        color: #2e7d32;
+        font-weight: bold;
+    }
+
+    .card {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        max-width: 500px;
+        margin: auto;
+        text-align: center;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+    }
+
+    input[type="file"] {
+        margin-bottom: 15px;
+    }
+
+    button {
+        background-color: #2e7d32;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #1b5e20;
+    }
+
+    .result {
+        margin-top: 20px;
+        padding: 15px;
+        background: #e8f5e9;
+        border-radius: 5px;
+        display: none;
+    }
+
+    .confidence {
+        font-size: 14px;
+        color: #555;
+    }
+</style>
+
+
+
+<div class="card">
+    <h2>Strawberry Disease Detection</h2>
+
+    <input type="file" id="imageInput" accept="image/*">
+    <br><br>
+    <button onclick="predict()">Predict</button>
+
+    <div class="result" id="resultBox">
+        <h3 id="predictionText"></h3>
+        <div class="confidence" id="confidenceText"></div>
+    </div>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie) {
+        document.cookie.split(';').forEach(cookie => {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        });
+    }
+    return cookieValue;
+}
+
+async function predict() {
+
+    const fileInput = document.getElementById("imageInput");
+
+    if (!fileInput.files.length) {
+        alert("Please select an image.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", fileInput.files[0]);
+
+    const response = await fetch("/api/predict/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: formData
+    });
+
+    const data = await response.json();
+
+    document.getElementById("predictionText").innerText =
+        "Prediction: " + data.prediction.replace(/_/g, " ");
+
+    document.getElementById("confidenceText").innerText =
+        "Confidence: " + (data.confidence * 100).toFixed(2) + "%";
+
+    document.getElementById("resultBox").style.display = "block";
+}
+</script>
+
+{% endblock %}
